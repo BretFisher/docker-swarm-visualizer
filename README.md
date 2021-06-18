@@ -1,8 +1,10 @@
+# Docker Swarm Visualizer (sample app - not for production)
 
+[![GitHub Super-Linter](https://github.com/bretfisher/docker-swarm-visualizer/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/BretFisher/docker-swarm-visualizer/actions/workflows/linter.yml)
+[![Build and Push Image](https://github.com/bretfisher/docker-swarm-visualizer/actions/workflows/docker-build-and-push.yml/badge.svg?branch=main)](https://github.com/BretFisher/docker-swarm-visualizer/actions/workflows/docker-build-and-push.yml)
 
 ![Sample image of  nodes with data](./nodes.png)
 
-# Docker Swarm Visualizer
 *** note ***
 _This only works with Docker Swarm Mode in Docker Engine 1.12.0 and later. It does not work with the separate Docker Swarm project_
 > Also this is a sample app meant for learning Docker. Running this app in production is insecure and should be avoided. If you want to run it in production you must take all security precautions, and in particular [Protect the Docker daemon socket](https://docs.docker.com/engine/security/https/) with SSL.
