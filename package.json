@@ -17,8 +17,17 @@
     "test": "karma start"
   },
   "repository": "https://github.com/dockersamples/docker-swarm-visualizer",
-  "keywords": ["Docker","Swarm","D3","Node Visualization"],
-  "contributors": [{"name": "Francisco Miranda", "name": "Mano Marks"}],
+  "keywords": [
+    "Docker",
+    "Swarm",
+    "D3",
+    "Node Visualization"
+  ],
+  "contributors": [
+    {
+      "name": "Mano Marks"
+    }
+  ],
   "devDependencies": {
     "babel-core": "^5.8.38",
     "babel-loader": "^5.4.2",
@@ -35,7 +44,7 @@
     "open": "7.0.3",
     "react-hot-loader": "^1.2.9",
     "rimraf": "^2.4.3",
-  	"string.prototype.padstart": "^3.0.0",
+    "string.prototype.padstart": "^3.0.0",
     "style-loader": "^0.12.3",
     "url-loader": "^0.5.6",
     "webpack": "^1.12.0",
@@ -53,7 +62,7 @@
     "request": "^2.65.0",
     "superagent": "3.7.0",
     "svg-inline-loader": "^0.3.0",
-    "ws":"7.4.6",
-    "express-ws":"2.0.0"
+    "ws": "7.4.6",
+    "express-ws": "2.0.0"
   }
 }

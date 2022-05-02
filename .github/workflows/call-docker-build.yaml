@@ -1,0 +1,140 @@
+
+---
+# template source: https://github.com/bretfisher/github-actions-templates/blob/main/.github/workflows/call-docker-build.yaml
+name: Docker Build
+
+on:
+  push:
+    branches:
+      - main
+    # don't rebuild image if someone only edited unrelated files
+    paths-ignore:
+      - 'README.md'
+      - '.github/linters/**'
+  pull_request:
+    # don't rebuild image if someone only edited unrelated files
+    paths-ignore:
+      - 'README.md'
+      - '.github/linters/**'
+  schedule:
+    # re-run monthly to keep image fresh with upstream base images
+    - cron: '0 12 15 * *'
+
+jobs:
+  call-docker-build:
+
+    name: Call Docker Build
+
+    uses: bretfisher/docker-build-workflow/.github/workflows/reusable-docker-build.yaml@updates-for-allhands
+
+    permissions:
+      contents: read
+      packages: write # needed to push docker image to ghcr.io
+      pull-requests: write # needed to create and update comments in PRs
+    
+    secrets:
+
+      # Only needed if with:dockerhub-enable is true below
+      dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
+
+      # Only needed if with:dockerhub-enable is true below
+      dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    with:
+      
+      ### REQUIRED
+      ### ENABLE ONE OR BOTH REGISTRIES
+      ### tell docker where to push.
+      ### NOTE if Docker Hub is set to true, you must set secrets above and also add account/repo/tags below
+      dockerhub-enable: true
+      ghcr-enable: true
+
+      ### REQUIRED 
+      ### A list of the account/repo names for docker build. List should match what's enabled above
+      ### defaults to:
+      image-names: |
+        bretfisher/visualizer
+        ghcr.io/bretfisher/visualizer
+
+      ### REQUIRED set rules for tagging images, based on special action syntax:
+      ### https://github.com/docker/metadata-action#tags-input
+      ### defaults to:
+      tag-rules: |
+        type=raw,value=latest,enable=${{ endsWith(github.ref, github.event.repository.default_branch) }}
+        type=ref,event=pr
+        type=ref,event=branch
+        type=semver,pattern={{version}}
+      
+      ### path to where docker should copy files into image
+      ### defaults to root of repository (.)
+      # context: .
+      
+      ### Dockerfile alternate name. Default is Dockerfile (relative to context path)
+      # file: Containerfile
+
+      ### build stage to target, defaults to empty, which builds to last stage in Dockerfile
+      # target:
+      
+      ### platforms to build for, defaults to linux/amd64
+      ### other options: linux/amd64,linux/arm64,linux/arm/v7
+      platforms: linux/amd64,linux/arm64,linux/arm/v7
+      
+      ### Create a PR comment with image tags and labels
+      ### defaults to false
+      # comment-enable: false
+
+
+
+
+jobs:
+  build-and-push-images:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        # we need qemu and buildx so we can build multiple platforms later
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1.2.0
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        # This makes image builds fast!      
+        name: Cache Docker layers
+        uses: actions/cache@v3.0.1
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      -
+        name: Login to DockerHub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Login to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      -
+        name: Docker meta
+        id: docker_meta
+        uses: docker/metadata-action@v3.6.2
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            bretfisher/visualizer
+            ghcr.io/bretfisher/visualizer
+          flavor: |
+            latest=false
+          tags: |
+            type=raw,value=latest
+
