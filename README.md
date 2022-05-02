@@ -1,11 +1,11 @@
 # Docker Swarm Visualizer (sample app - not for production)
 
-[![GitHub Super-Linter](https://github.com/bretfisher/docker-swarm-visualizer/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/BretFisher/docker-swarm-visualizer/actions/workflows/linter.yml)
-[![Build and Push Image](https://github.com/bretfisher/docker-swarm-visualizer/actions/workflows/docker-build-and-push.yml/badge.svg?branch=main)](https://github.com/BretFisher/docker-swarm-visualizer/actions/workflows/docker-build-and-push.yml)
+[![Lint Code Base](https://github.com/BretFisher/docker-swarm-visualizer/actions/workflows/call-super-linter.yaml/badge.svg)](https://github.com/BretFisher/docker-swarm-visualizer/actions/workflows/call-super-linter.yaml)
+[![Docker Build](https://github.com/BretFisher/docker-swarm-visualizer/actions/workflows/call-docker-build.yaml/badge.svg)](https://github.com/BretFisher/docker-swarm-visualizer/actions/workflows/call-docker-build.yaml)
 
 ![Sample image of  nodes with data](./nodes.png)
 
-*** note ***
+**_note_**
 _This only works with Docker Swarm Mode in Docker Engine 1.12.0 and later. It does not work with the separate Docker Swarm project_
 > Also this is a sample app meant for learning Docker. Running this app in production is insecure and should be avoided. If you want to run it in production you must take all security precautions, and in particular [Protect the Docker daemon socket](https://docs.docker.com/engine/security/https/) with SSL.
 
@@ -20,26 +20,26 @@ Occasionally the Remote API will return incomplete data, for instance the node c
 
 To run:
 
-```
-$ docker run -it -d -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock dockersamples/visualizer
+```bash
+docker run -it -d -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock dockersamples/visualizer
 ```
 
 If port 8080 is already in use on your host, you can specify e.g. `-p [YOURPORT]:8080` instead. Example:
 
-```
-$ docker run -it -d -p 5000:8080 -v /var/run/docker.sock:/var/run/docker.sock dockersamples/visualizer
+```bash
+docker run -it -d -p 5000:8080 -v /var/run/docker.sock:/var/run/docker.sock dockersamples/visualizer
 ```
 
 To run with a different context root (useful when running behind an external load balancer):
 
 ```bash
-$ docker run -it -d -e CTX_ROOT=/visualizer -v /var/run/docker.sock:/var/run/docker.sock dockersamples/visualizer
+docker run -it -d -e CTX_ROOT=/visualizer -v /var/run/docker.sock:/var/run/docker.sock dockersamples/visualizer
 ```
 
 To run in a docker swarm:
 
-```
-$ docker service create \
+```bash
+docker service create \
   --name=viz \
   --publish=8080:8080/tcp \
   --constraint=node.role==manager \
@@ -61,8 +61,8 @@ The main `dockersamples/visualizer` image supports **linux/amd64**.
 
 [@alexellisuk](https://twitter.com/alexellisuk) has pushed an image to the Docker Hub as `alexellis2/visualizer-arm:latest` it will run the code on an ARMv6 or ARMv7 device such as the Raspberry Pi.
 
-```
-$ docker service create \
+```bash
+docker service create \
   --name=viz \
   --publish=8080:8080/tcp \
   --constraint=node.role==manager \
@@ -74,8 +74,8 @@ $ docker service create \
 
 If you would like to build the image from source run the following command:
 
-```
-$ docker build -t visualizer-arm:latest .
+```bash
+docker build -t visualizer-arm:latest .
 ```
 
 > Make sure you do this on a Raspberry Pi directly.
@@ -90,15 +90,15 @@ in a Windows nanoserver container.
 
 If you would like to build the image from source run the following command:
 
-```
-$ docker build -f Dockerfile.windows -t visualizer-windows:latest .
+```bash
+docker build -f Dockerfile.windows -t visualizer-windows:latest .
 ```
 
 On Windows you cannot use `-v` to bind mount the named pipe into the container.
 Your Docker engine has to listen to a TCP port, eg. 2375 and you have to
 set the `DOCKER_HOST` environment variable running the container.
 
-```
+```bash
 $ip=(Get-NetIPAddress -AddressFamily IPv4 `
    | Where-Object -FilterScript { $_.InterfaceAlias -Eq "vEthernet (HNS Internal NIC)" } `
    ).IPAddress
@@ -110,8 +110,8 @@ docker run -d -p 8080:8080 -e DOCKER_HOST=${ip}:2375 --name=visualizer stefansch
 
 To work with a TLS secured Docker engine on Windows, set the environment variable `DOCKER_TLS_VERIFY` and
 bind mount the TLS certificates into the container.
- 
-```
+
+```bash
 $ip=(Get-NetIPAddress -AddressFamily IPv4 `
    | Where-Object -FilterScript { $_.InterfaceAlias -Eq "vEthernet (HNS Internal NIC)" } `
    ).IPAddress
@@ -120,20 +120,23 @@ docker run -d -p 8080:8080 -e DOCKER_HOST=${ip}:2376 -e DOCKER_TLS_VERIFY=1 -v "
 ```
 
 ## Building a custom image
-*When building for Windows, see [Running on Windows](#running-on-windows)*.
+
+_When building for Windows, see [Running on Windows](#running-on-windows)_.
 
 To build an up-to-date image for any architecture supported by [node:8-alpine](https://hub.docker.com/_/node/) (currently `amd64`, `arm32v6`, `arm32v7`, `arm64v8`, `i386`, `ppc64le` and `s390x`), execute the following command on a device of your target architecture:
-```
-$ docker build -t visualizer-custom:latest .
+
+```bash
+docker build -t visualizer-custom:latest .
 ```
 
 Afterwards you can start visualizer by using any of the commands stated [above](#docker-swarm-visualizer). Just replace `dockersamples/visualizer` with `visualizer-custom`. For example:
-```
-$ docker run -it -d -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock visualizer-custom
+
+```bash
+docker run -it -d -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock visualizer-custom
 ```
 
+## TODO
 
-## TODO:
 * Take out or fix how dist works
 * Comment much more extensively
 * Create tests and make them work better
